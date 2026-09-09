@@ -1,0 +1,33 @@
+{
+  "name": "PantryPilot",
+  "version": 1,
+  "tags": {
+    "agentcore:created-by": "agentcore-cli",
+    "agentcore:project-name": "PantryPilot",
+    "hackathon": "agents-for-humans"
+  },
+  "runtimes": [
+    {
+      "name": "PantryPilotAgent",
+      "build": "CodeZip",
+      "entrypoint": "main.py",
+      "codeLocation": "../",
+      "runtimeVersion": "PYTHON_3_12",
+      "networkMode": "PUBLIC",
+      "protocol": "HTTP",
+      "envVars": [
+        { "name": "BEDROCK_MODEL_ID", "value": "global.anthropic.claude-sonnet-4-6" },
+        { "name": "PANTRYPILOT_STATE_DIR", "value": "/tmp/pantrypilot" },
+        { "name": "DEMO_TODAY", "value": "2026-09-11" }
+      ],
+      "instrumentation": { "enableOtel": true }
+    }
+  ],
+  "memories": [],
+  "credentials": [],
+  "payments": [],
+  "evaluators": [],
+  "onlineEvalConfigs": [],
+  "agentCoreGateways": [],
+  "policyEngines": []
+}

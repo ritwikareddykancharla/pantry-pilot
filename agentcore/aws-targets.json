@@ -1,0 +1,8 @@
+[
+  {
+    "name": "default",
+    "description": "Hackathon target (us-west-2)",
+    "account": "<ACCOUNT_ID>",
+    "region": "us-west-2"
+  }
+]

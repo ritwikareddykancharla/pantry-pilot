@@ -1,0 +1,16 @@
+# Decisions and assumptions
+
+Short log of calls made while building without a reviewer in the loop.
+
+1. **Demo "today" is 2026-09-11, not 2026-09-12.** The spec says `DEMO_TODAY=2026-09-12 (Friday)`, but 2026-09-12 is a Saturday. The Friday-before-Saturday-shift story only works if today is a Friday, so the default is `2026-09-11` and every demo date (shifts, messages, expiries) is one day earlier than the spec's examples: Sat Sep 12 intake, Tue Sep 15, Thu Sep 17 delivery, Sat Sep 19. Override with `DEMO_TODAY`.
+2. **Conflict version of the Priya vs Marcus story.** Saturday intake needs 3, has 2 after Dana cancels, so exactly one spot is open and both Priya and Marcus want it. The roster agent is told to escalate with a fairness-based recommendation rather than pick.
+3. **Coordinator replies are ordinary inbound messages.** `service.decide` for an escalation writes a message with `from_id="coordinator"`, `kind="coordinator_decision"`, then the web server (local backend) runs a follow-up cycle on it in the background. `main.py` and the CLI do not auto-run; the next `sweep` or `inbound` picks it up. Set `DECISION_AUTORUN=0` to disable the follow-up in the server.
+4. **Gated tools check `agent.state["approved"]`.** `send_broadcast` and `place_supply_order` create an `approval` decision that stores `{"tool": name, "input": {...}}`. `build_approved_executor` builds a `dispatcher` with `approved=True` and `service.decide` calls `executor.tool.<name>(**input)` directly, so no model call is needed to execute an approved action. Orders under the `$50` threshold execute immediately without approval, as `org.yaml` says.
+5. **One Swarm per cycle, fresh session id.** Swarm sessions are keyed `pantrypilot-<cycle_id>`; a persistent session would replay every earlier cycle's messages into the context. Cross-cycle memory lives in the Store (decisions, messages, audit) instead.
+6. **Facts in the brief are computed, not generated.** `brief.compute_facts` derives coverage, open slots, hours, donations, below-par, expiring, and thank-you lists from the store; the model only writes the prose fields. If structured output fails, `fallback_brief` still produces a valid `WeeklyBrief`.
+7. **`ask` is a plain read-only Agent, not the Swarm**, per spec, with `agent_id="pantrypilot-ask"` and no session manager (stateless questions).
+8. **Quiet hours queue instead of blocking.** `send_message` during 21:00-08:00 stores the message with `status="queued"`; a real SMS connector would flush the queue in the morning.
+9. **Scripted model for tests** implements `stream()` with Bedrock-shaped events, infers the forced tool when `tool_choice` is `{"any": {}}`/`{"tool": ...}` so `structured_output` works through `Agent(..., structured_output_model=...)`, and records every request so tests can assert on prompts.
+10. **Ruff line length 120**, isort with `pantrypilot`, `app`, `main`, `scripted_model` as first-party.
+11. **`codeLocation: "../"` kept as specified** in `agentcore/agentcore.json`; not verified against the CLI here (no AWS access). The fallback described in the README is to move the config to the repo root with `codeLocation: "."`.
+12. **No em dashes** in any AWS-facing names or descriptions.
