@@ -9,6 +9,7 @@ attributes) could replace it without changing tools or the service layer. See
 from __future__ import annotations
 
 import json
+import secrets
 import sqlite3
 import threading
 from pathlib import Path
@@ -407,7 +408,9 @@ class Store:
     def start_cycle(self, kind: str, task: str) -> dict[str, Any]:
         with self._lock:
             _, seq = self._next_id("cycles", "C")
-            cid = f"C-{seq:04d}"
+            # Suffix with a short random token so two processes that share the database
+            # (for example a CLI sweep next to the web app scheduler) never collide on an id.
+            cid = f"C-{seq:04d}-{secrets.token_hex(2)}"
             self._conn.execute(
                 "INSERT INTO cycles(id, seq, kind, task, started_at, status) VALUES (?,?,?,?,?,'running')",
                 (cid, seq, kind, task, config.now_iso()),

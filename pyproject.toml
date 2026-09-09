@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-asyncio", "httpx", "ruff"]
+dev = ["pytest", "pytest-asyncio", "httpx", "ruff", "botocore[crt]"]
 
 [tool.setuptools]
 package-dir = { "" = "src" }

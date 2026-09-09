@@ -38,10 +38,8 @@ def test_find_candidates_and_assign_rules(store: Store) -> None:
     # Skill rule: Priya (no driver skill) cannot take the delivery run.
     bad = roster.assign_volunteer("S-0917-DELIVERY", "V-02", "tentative", agent=fake_agent())
     assert not bad["ok"] and "skills" in bad["error"]
-    # Minor rule: Sam cannot be confirmed on Tuesday (no supervisor), tentative is allowed with a warning.
-    tue = store.shift("S-0915-EVE")
-    tue["required_skills"] = ["sorting"]
-    store.put_doc("shift", tue["id"], tue)
+    # Minor rule: Sam has the intake skill but cannot be confirmed on Tuesday (no supervisor yet);
+    # tentative is allowed with a warning so the agent can hold the spot while it finds one.
     refused = roster.assign_volunteer("S-0915-EVE", "V-05", "confirmed", agent=fake_agent())
     assert not refused["ok"] and "minor" in refused["error"].lower()
     tentative = roster.assign_volunteer("S-0915-EVE", "V-05", "tentative", agent=fake_agent())
@@ -51,6 +49,12 @@ def test_find_candidates_and_assign_rules(store: Store) -> None:
 def test_unassign_and_last_minute_cover(store: Store) -> None:
     out = roster.unassign_volunteer("S-0912-INTAKE", "V-01", "kid sick", agent=fake_agent())
     assert out["ok"] and out["slot"]["open"] == 1 and out["slot"]["filled"] == 2
+    # Contested last spot: Priya (M-002) and Marcus (M-003) both wrote in and both qualify, so the
+    # tool refuses to let the model pick; Dana, who just cancelled, does not count as a rival.
+    contested = roster.assign_volunteer("S-0912-INTAKE", "V-02", "confirmed", agent=fake_agent())
+    assert not contested["ok"] and contested["contested_by"] == ["V-03"] and "escalate" in contested["error"]
+    # Once the coordinator has decided (Marcus's message closed), the assignment goes through.
+    store.mark_message_handled("M-003", "coordinator gave the spot to Priya")
     cover = roster.assign_volunteer("S-0912-INTAKE", "V-02", "confirmed", agent=fake_agent())
     assert cover["ok"]
     entry = next(r for r in store.shift("S-0912-INTAKE")["roster"] if r["volunteer_id"] == "V-02")

@@ -123,6 +123,8 @@ A pantry coordinator lives in a messaging app, not in an admin panel. Blocking t
 2. The console renders the row as a card: situation, one button per option, the recommendation highlighted, and a free-text box for anything else.
 3. `service.decide` turns the tap into an inbound message from `coordinator` ("Coordinator decided on D-0001 (...): Give Saturday 9am intake to Priya"). The next cycle reads it like any other text and carries it out, including telling Marcus he is first alternate.
 
+The rules that decide *when* to escalate live in the tools, not only in the prompts. `assign_volunteer` refuses to confirm a minor on a shift with no confirmed supervisor, and refuses a contested last spot outright: if exactly one place is open and another qualified, available volunteer wrote in about the same day this cycle, the tool returns `ok=false` with both names and tells the agent to escalate. In testing against Bedrock the model twice picked the fairer candidate on its own despite an explicit instruction not to; moving the rule into code made the behavior deterministic.
+
 Gated actions (`send_broadcast`, `place_supply_order` over the threshold) use the same card with Approve / Decline. The tool stores its exact payload in the decision; on approval `service.decide` executes that payload with a direct tool call on an agent constructed with `approved=True`, so what the coordinator approved is exactly what goes out. Nothing is written to the outbox until then. Every step, human or agent, lands in the audit trail with a name on it.
 
 ## Run locally

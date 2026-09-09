@@ -27,12 +27,12 @@ def patched_model(monkeypatch):
 
 def test_invoke_sweep_and_status(store: Store, patched_model) -> None:
     out = main.invoke({"action": "sweep"})
-    assert out["ok"] and out["cycle_id"] == "C-0001"
+    assert out["ok"] and out["cycle_id"].startswith("C-0001-")
     assert out["handoff_trail"] == ["dispatcher"] and out["report"]["coverage_pct"] == 66.7
     assert out["pending_decisions"] == [] and isinstance(out["actions_taken"], list)
     status = main.invoke({"action": "status"})
     assert status["ok"] and status["counts"]["cycles"] == 1 and status["last_sweep_at"]
-    assert status["last_report"]["cycle_id"] == "C-0001"
+    assert status["last_report"]["cycle_id"] == out["cycle_id"]
 
 
 def test_invoke_inbound_decide_ask_state(store: Store, patched_model) -> None:

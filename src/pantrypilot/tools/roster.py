@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+import re
+from datetime import date, timedelta
 from typing import Any
 
 from strands import tool
@@ -109,14 +110,52 @@ def find_candidates(slot_id: str, limit: int = 5) -> dict[str, Any]:
     }
 
 
+def _mentions_shift(body: str, shift: dict[str, Any]) -> bool:
+    """True if a message text refers to the shift's day (weekday name, "tomorrow", date or slot id)."""
+    text = body.lower()
+    day = date.fromisoformat(shift["date"])
+    tokens = {shift["id"].lower(), shift["date"], day.strftime("%A").lower(), day.strftime("%a").lower()}
+    if day == config.today() + timedelta(days=1):
+        tokens.add("tomorrow")
+    if day == config.today():
+        tokens.add("today")
+    return any(re.search(rf"\b{re.escape(t)}\b", text) for t in tokens)
+
+
+def _contesting_volunteers(
+    s: Any, shift: dict[str, Any], assignee_id: str, by_id: dict[str, dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Other volunteers with an unhandled inbound message who could also take this slot.
+
+    Used to stop the model from quietly picking one of two people who both wrote in for the
+    same last spot; that call belongs to the coordinator. People already on the roster or just
+    removed from it (the cancellation that opened the spot) are not rivals.
+    """
+    removed = {c.get("removed") for c in shift.get("changes", [])}
+    wrote_in = {
+        m.get("from_id")
+        for m in s.list_messages(direction="inbound", handled=False)
+        if _mentions_shift(m.get("body", ""), shift)
+    }
+    rules = s.org().get("rules") or {}
+    eligible = {
+        c["volunteer_id"]
+        for c in ranking.rank_candidates(shift, list(by_id.values()), config.today(), rules)
+        if c["eligible_now"]
+    }
+    return [by_id[vid] for vid in sorted(eligible & wrote_in) if vid != assignee_id and vid not in removed]
+
+
 @tool
 def assign_volunteer(slot_id: str, volunteer_id: str, status: str = "tentative", agent: Any = None) -> dict[str, Any]:
     """Put a volunteer on a shift as "tentative" (asked / offered) or "confirmed" (they said yes).
 
     Rules enforced here: the volunteer must have the required skills; the slot must have room
-    (if it is full and someone else also wants it, escalate instead); a minor cannot be
-    confirmed unless a supervisor is confirmed on the same shift (tentative is allowed so you
-    can hold the spot while you find a supervisor or escalate).
+    (if it is full and someone else also wants it, escalate instead); when exactly one spot is
+    open and another qualified, available volunteer also has an unhandled message this cycle,
+    the spot is contested and this tool refuses so you escalate instead of choosing; a minor
+    cannot be confirmed unless a supervisor is confirmed on the same shift (tentative is
+    allowed so you can hold the spot while you find a supervisor or escalate).
 
     Args:
         slot_id: Shift id such as "S-0918-DELIVERY".
@@ -152,6 +191,23 @@ def assign_volunteer(slot_id: str, volunteer_id: str, status: str = "tentative",
             "error": "Slot is already full. If two people want the same last spot, escalate to the coordinator.",
             "slot": _ctx.shift_view(shift, by_id),
         }
+    approved = bool(getattr(getattr(agent, "state", None), "get", lambda *_: False)("approved"))
+    if existing is None and not approved and ranking.shift_open_count(shift) == 1:
+        rivals = _contesting_volunteers(s, shift, person["id"], by_id)
+        if rivals:
+            names = ", ".join(f"{r['name']} ({r['id']})" for r in rivals)
+            return {
+                "ok": False,
+                "error": (
+                    f"Contested last spot: {names} also wrote in this cycle and is qualified and available for "
+                    f"{slot_id}. Do not choose. escalate_to_coordinator with both names and the fairness data from "
+                    "find_candidates, tell both you are checking with Aisha, and mark their messages handled. "
+                    "If the coordinator has already decided, mark the other person's message handled first, "
+                    "then assign."
+                ),
+                "contested_by": [r["id"] for r in rivals],
+                "slot": _ctx.shift_view(shift, by_id),
+            }
     if ranking.is_minor(person, int(rules.get("minor_age", 18))) and rules.get("minors_need_supervisor", True):
         if not ranking.shift_has_supervisor(shift, by_id):
             if status == "confirmed":

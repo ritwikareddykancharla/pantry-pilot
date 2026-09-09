@@ -56,7 +56,7 @@ def test_decisions_create_find_resolve(store: Store) -> None:
 
 def test_audit_cycles_reports_meta(store: Store) -> None:
     cycle = store.start_cycle("sweep", "task text")
-    assert cycle["id"] == "C-0001" and cycle["status"] == "running"
+    assert cycle["id"].startswith("C-0001-") and cycle["status"] == "running"
     store.add_audit(cycle_id=cycle["id"], agent="roster", tool="assign_volunteer", input={"a": 1}, result="ok")
     store.add_audit(cycle_id=cycle["id"], agent="dispatcher", tool="handoff_to_agent", kind="handoff")
     entries = store.list_audit(cycle_id=cycle["id"])
@@ -71,7 +71,7 @@ def test_audit_cycles_reports_meta(store: Store) -> None:
     store.set_meta("last_sweep_at", "2026-09-11T09:00:00")
     assert store.get_meta("last_sweep_at") == "2026-09-11T09:00:00"
     assert store.get_meta("missing", "dflt") == "dflt"
-    assert store.last_cycle()["id"] == "C-0001"
+    assert store.last_cycle()["id"] == cycle["id"]
 
 
 def test_hours_and_donations(store: Store) -> None:

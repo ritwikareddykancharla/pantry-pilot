@@ -58,7 +58,7 @@
     "id": "V-05",
     "name": "Sam Okafor",
     "phone": "+1-555-010-0205",
-    "skills": ["sorting"],
+    "skills": ["intake", "sorting"],
     "availability": [
       {"day": "tue", "start": "16:00", "end": "19:00"},
       {"day": "sat", "start": "09:00", "end": "13:00"}
