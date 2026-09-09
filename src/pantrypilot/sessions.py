@@ -22,7 +22,7 @@ def build_session_manager(session_id: str) -> SessionManager:
             session_id=session_id,
             bucket=bucket,
             prefix=os.getenv("SESSION_PREFIX", "pantrypilot/sessions"),
-            region_name=os.getenv("AWS_REGION", "us-west-2"),
+            region_name=os.getenv("AWS_REGION", "us-east-1"),
         )
     config.SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
     return FileSessionManager(session_id=session_id, storage_dir=str(config.SESSIONS_DIR))

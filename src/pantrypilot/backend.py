@@ -57,7 +57,7 @@ class AgentCoreBackend:
 
     def __init__(self, runtime_arn: str | None = None, region: str | None = None, client: Any | None = None) -> None:
         self.runtime_arn = runtime_arn or os.environ["AGENT_RUNTIME_ARN"]
-        self.region = region or os.getenv("AWS_REGION", "us-west-2")
+        self.region = region or os.getenv("AWS_REGION", "us-east-1")
         self._client = client
         # AgentCore requires a runtime session id of at least 33 characters; keep it stable per process.
         self.session_id = os.getenv("AGENT_RUNTIME_SESSION_ID") or f"pantrypilot-console-{uuid.uuid4().hex}"

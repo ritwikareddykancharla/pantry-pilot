@@ -32,7 +32,7 @@ def build_model() -> Model:
             pass
     return BedrockModel(
         model_id=os.getenv("BEDROCK_MODEL_ID", DEFAULT_MODEL_ID),
-        region_name=os.getenv("AWS_REGION", "us-west-2"),
+        region_name=os.getenv("AWS_REGION", "us-east-1"),
         max_tokens=4096,
         temperature=0.2,
     )

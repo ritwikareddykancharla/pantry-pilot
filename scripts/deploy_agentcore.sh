@@ -5,7 +5,7 @@
 #   npm i -g @aws/agentcore
 #   aws login   (or any credentials in the default chain) for the account in agentcore/aws-targets.json
 #   Replace <ACCOUNT_ID> in agentcore/aws-targets.json with your 12-digit account id.
-#   Enable Anthropic Claude model access in the Bedrock console for us-west-2.
+#   Enable Anthropic Claude model access in the Bedrock console for us-east-1.
 set -euo pipefail
 
 cd "$(dirname "$0")/../agentcore"
