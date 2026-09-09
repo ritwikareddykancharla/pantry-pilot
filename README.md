@@ -46,59 +46,7 @@ Click **Run daily cycle**, answer the cards in **Needs you**, then use **Simulat
 
 ![Architecture](docs/architecture.png)
 
-```mermaid
-flowchart LR
-  subgraph Sources["Data sources (demo JSON, connector interfaces)"]
-    VOL[volunteers.json]
-    SHF[shifts.json]
-    INV[inventory.json]
-    MSG[inbound_messages.json]
-    ORG[org.yaml]
-  end
-
-  subgraph Runtime["Amazon Bedrock AgentCore Runtime (main.py)"]
-    direction TB
-    TOOLS["Strands @tool functions<br/>roster / inventory / common"]
-    subgraph Swarm["Strands Swarm (agents.py)"]
-      D[dispatcher<br/>entry point]
-      R[roster]
-      S[steward]
-      D -- handoff_to_agent --> R
-      D -- handoff_to_agent --> S
-      R -- hand back --> D
-      S -- hand back --> D
-    end
-    ASK[ask agent<br/>read-only]
-    BRIEF[briefer<br/>WeeklyBrief structured output]
-    HOOK["AuditHook<br/>AfterToolCallEvent"]
-    SESS["FileSessionManager / S3SessionManager"]
-    STORE[("Store (sqlite3)<br/>decisions, audit, cycles, state")]
-  end
-
-  BEDROCK["Amazon Bedrock<br/>Claude Sonnet 4.6"]
-
-  subgraph Human["Coordinator"]
-    UI["Coordinator console<br/>app/server.py + static UI"]
-    PHONE["SMS / WhatsApp<br/>(demo: inbound form)"]
-  end
-
-  Sources -- seed --> STORE
-  STORE <--> TOOLS
-  TOOLS --> Swarm
-  TOOLS --> ASK
-  Swarm --> HOOK --> STORE
-  Swarm <--> SESS
-  Swarm -- escalate_to_coordinator --> STORE
-  Swarm --> BRIEF --> STORE
-  Swarm <--> BEDROCK
-  ASK <--> BEDROCK
-  BRIEF <--> BEDROCK
-  STORE -- GET /api/state --> UI
-  UI -- "POST /api/decisions/{id}" --> STORE
-  STORE -- "coordinator reply as inbound message" --> D
-  PHONE -- "POST /api/inbound" --> D
-  UI -- "POST /api/sweep, /api/ask" --> Runtime
-```
+*Numbered steps follow one cycle: trigger, routine work done silently, the one moment a human is needed, and how the answer gets back to the agent. Editable source: [docs/architecture.excalidraw](docs/architecture.excalidraw) (open at excalidraw.com); also [SVG](docs/architecture.svg).*
 
 More detail in [docs/architecture.md](docs/architecture.md).
 
@@ -109,7 +57,7 @@ More detail in [docs/architecture.md](docs/architecture.md).
 - **Hooks**: `AuditHook(HookProvider)` subscribes to `AfterToolCallEvent` and writes one audit row per tool call tagged with `event.agent.name`: `src/pantrypilot/hooks.py`. `SwarmResult.node_history` is stored per cycle as the handoff trail: `src/pantrypilot/service.py` (`_run_cycle`).
 - **Structured output**: `WeeklyBrief` (Pydantic) produced with `Agent(..., structured_output_model=WeeklyBrief)` and merged with deterministically computed facts: `src/pantrypilot/brief.py`.
 - **Sessions**: `FileSessionManager` under `.data/sessions` locally, `S3SessionManager` when `SESSION_BUCKET` is set: `src/pantrypilot/sessions.py`.
-- **Models**: `BedrockModel` (`global.anthropic.claude-sonnet-4-6`, `us-west-2`) with an optional `AnthropicModel` fallback for laptops without AWS: `src/pantrypilot/model.py`.
+- **Models**: `BedrockModel` (`global.anthropic.claude-sonnet-4-6`, `us-east-1`) with an optional `AnthropicModel` fallback for laptops without AWS: `src/pantrypilot/model.py`.
 - **Agent state as a capability flag**: `build_approved_executor` creates a `dispatcher` with `state={"approved": True}` and `service.decide` calls `executor.tool.send_broadcast(...)` directly, no model in the loop: `src/pantrypilot/agents.py`, `src/pantrypilot/service.py`.
 - **Read-only `Agent`** (`agent_id="pantrypilot-ask"`) for questions: `build_ask_agent`.
 - **System prompts as product logic**, one per agent with the routine, the escalate/handle-alone rules and message tone: `src/pantrypilot/prompts.py`.
@@ -129,7 +77,7 @@ Gated actions (`send_broadcast`, `place_supply_order` over the threshold) use th
 
 ## Run locally
 
-Prerequisites: Python 3.12, [`uv`](https://docs.astral.sh/uv/), an AWS account with **Anthropic Claude model access enabled in the Amazon Bedrock console** (us-west-2, `global.anthropic.claude-sonnet-4-6`), and credentials in the default chain (`aws login`, `aws configure`, or `AWS_PROFILE`).
+Prerequisites: Python 3.12, [`uv`](https://docs.astral.sh/uv/), an AWS account with **Anthropic Claude model access enabled in the Amazon Bedrock console** (us-east-1, `global.anthropic.claude-sonnet-4-6`), and credentials in the default chain (`aws login`, `aws configure`, or `AWS_PROFILE`).
 
 ```bash
 git clone <this repo> && cd pantry-pilot
@@ -156,7 +104,7 @@ Environment variables (all optional, see `.env.example`): `BEDROCK_MODEL_ID`, `A
 
 ```bash
 npm i -g @aws/agentcore
-# edit agentcore/aws-targets.json: replace <ACCOUNT_ID> with your 12-digit account id (region us-west-2)
+# edit agentcore/aws-targets.json: replace <ACCOUNT_ID> with your 12-digit account id (region us-east-1)
 make deploy               # cd agentcore && agentcore validate && agentcore deploy -y
 agentcore invoke '{"action": "status"}'
 ```
@@ -164,7 +112,7 @@ agentcore invoke '{"action": "status"}'
 Then point the console at the runtime:
 
 ```bash
-AGENT_BACKEND=agentcore AGENT_RUNTIME_ARN=arn:aws:bedrock-agentcore:us-west-2:<ACCOUNT_ID>:runtime/PantryPilotAgent-xxxx make serve
+AGENT_BACKEND=agentcore AGENT_RUNTIME_ARN=arn:aws:bedrock-agentcore:us-east-1:<ACCOUNT_ID>:runtime/PantryPilotAgent-xxxx make serve
 ```
 
 Notes: `agentcore/agentcore.json` uses `codeLocation: "../"` so the zip contains `main.py`, `src/`, `data/` and `requirements.txt` from the repo root. If your CLI version rejects a parent path, move `agentcore.json` and `aws-targets.json` to the repo root with `codeLocation: "."`. The runtime's `PANTRYPILOT_STATE_DIR` is `/tmp/pantrypilot`, so the SQLite store is per container; set `SESSION_BUCKET` for durable Swarm sessions and swap `Store` for DynamoDB for durable decisions. A `Dockerfile` (ARM64, non-root, port 8080) is included for the container build path.
@@ -193,7 +141,7 @@ src/pantrypilot/
 data/                        org.yaml, volunteers, shifts, inventory, contacts, inbound queue, coordinator replies
 agentcore/                   agentcore.json, aws-targets.json
 scripts/                     demo.sh, deploy_agentcore.sh
-docs/                        architecture.mmd/.md, submission.md, demo-script.md, decisions.md
+docs/                        architecture.png/.svg/.excalidraw/.md, submission.md, demo-script.md, decisions.md
 tests/                       scripted_model.py + 33 tests
 ```
 

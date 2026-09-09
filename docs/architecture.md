@@ -2,7 +2,7 @@
 
 ![Architecture](architecture.png)
 
-Mermaid source: [architecture.mmd](architecture.mmd).
+Diagram: [architecture.png](architecture.png). Editable source: [architecture.excalidraw](architecture.excalidraw) (open at excalidraw.com), also [architecture.svg](architecture.svg).
 
 ## Components
 
