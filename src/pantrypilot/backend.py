@@ -13,6 +13,11 @@ from typing import Any, Protocol
 
 from . import service
 
+# A sweep is one synchronous InvokeAgentRuntime call that can run for minutes. boto3's defaults
+# (60 s read timeout, automatic retries) would time out and then re-run the sweep, so the client
+# waits up to 15 minutes and never retries.
+INVOKE_READ_TIMEOUT_SECONDS = 900
+
 
 class Backend(Protocol):
     """What the web server needs from an agent backend."""
@@ -66,8 +71,17 @@ class AgentCoreBackend:
     def client(self) -> Any:
         if self._client is None:
             import boto3
+            from botocore.config import Config
 
-            self._client = boto3.client("bedrock-agentcore", region_name=self.region)
+            self._client = boto3.client(
+                "bedrock-agentcore",
+                region_name=self.region,
+                config=Config(
+                    read_timeout=INVOKE_READ_TIMEOUT_SECONDS,
+                    connect_timeout=10,
+                    retries={"total_max_attempts": 1},
+                ),
+            )
         return self._client
 
     def invoke(self, payload: dict[str, Any]) -> dict[str, Any]:
