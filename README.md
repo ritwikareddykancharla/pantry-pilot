@@ -105,8 +105,10 @@ Environment variables (all optional, see `.env.example`): `BEDROCK_MODEL_ID`, `A
 ```bash
 npm i -g @aws/agentcore
 # edit agentcore/aws-targets.json: replace <ACCOUNT_ID> with your 12-digit account id (region us-east-1)
-make deploy               # cd agentcore && agentcore validate && agentcore deploy -y
+make deploy               # agentcore validate && agentcore deploy -y, from the repo root
 agentcore invoke '{"action": "status"}'
+agentcore invoke '{"action": "ask", "question": "Who is on Saturday intake?"}'
+agentcore invoke '{"action": "sweep"}'
 ```
 
 Then point the console at the runtime:
@@ -115,7 +117,9 @@ Then point the console at the runtime:
 AGENT_BACKEND=agentcore AGENT_RUNTIME_ARN=arn:aws:bedrock-agentcore:us-east-1:<ACCOUNT_ID>:runtime/PantryPilotAgent-xxxx make serve
 ```
 
-Notes: `agentcore/agentcore.json` uses `codeLocation: "../"` so the zip contains `main.py`, `src/`, `data/` and `requirements.txt` from the repo root. If your CLI version rejects a parent path, move `agentcore.json` and `aws-targets.json` to the repo root with `codeLocation: "."`. The runtime's `PANTRYPILOT_STATE_DIR` is `/tmp/pantrypilot`, so the SQLite store is per container; set `SESSION_BUCKET` for durable Swarm sessions and swap `Store` for DynamoDB for durable decisions. A `Dockerfile` (ARM64, non-root, port 8080) is included for the container build path.
+Notes: `agentcore/agentcore.json` defines a CodeZip runtime `PantryPilotAgent` (Python 3.12, `main.py`, CDK-managed; the generated CDK app lives in `agentcore/cdk`) whose zip contains `main.py`, `src/`, `data/` and the dependencies from the repo root. The CLI wraps whatever you pass to `invoke` as `{"prompt": "..."}`; `main.py` unwraps a JSON object from that field and treats any other text as an `ask`. The runtime's `PANTRYPILOT_STATE_DIR` is `/tmp/pantrypilot`, so the SQLite store is per container; set `SESSION_BUCKET` for durable Swarm sessions and swap `Store` for DynamoDB for durable decisions. A `Dockerfile` (ARM64, non-root, port 8080) is included for the container build path.
+
+Deployed for the hackathon as `arn:aws:bedrock-agentcore:us-east-1:796330847946:runtime/PantryPilot_PantryPilotAgent-YouoNt9rM6` (stack `AgentCore-PantryPilot-default`).
 
 Payload contract (`main.py`): `{"action": "sweep"}`, `{"action": "inbound", "from": "V-04", "text": "..."}`, `{"action": "decide", "decision_id": "D-0001", "response": "yes|no|<text>", "edits": {}}`, `{"action": "ask", "prompt": "..."}`, `{"action": "status"}`, `{"action": "state"}`. Unknown actions and exceptions return `{"ok": false, "error": "..."}`.
 
