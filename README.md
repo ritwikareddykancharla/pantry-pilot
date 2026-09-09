@@ -4,7 +4,7 @@ A coordinator's assistant for community food pantries: fills shifts, tracks dona
 
 Built for the AWS "Agents for Humans" hackathon, Good Neighbor Agents track, on Strands Agents and Amazon Bedrock AgentCore.
 
-**Live demo:** https://dmwmur6m6t.us-east-1.awsapprunner.com (the coordinator console on AWS App Runner, calling the Swarm on Amazon Bedrock AgentCore Runtime). Send a simulated text or press "Run daily cycle", watch the dispatcher, roster and steward hand off, and answer the escalation cards. It is a shared demo instance: everyone sees the same pantry, and its state resets to the demo dataset after 15 idle minutes.
+**Live demo:** https://zyp4mghmps.us-east-1.awsapprunner.com (the coordinator console on AWS App Runner, calling the Swarm on Amazon Bedrock AgentCore Runtime). Send a simulated text or press "Run daily cycle", watch the dispatcher, roster and steward hand off, and answer the escalation cards. It is a shared demo instance: everyone sees the same pantry, and its state resets to the demo dataset after 15 idle minutes.
 
 ## The problem
 
@@ -129,7 +129,7 @@ make deploy-web    # scripts/deploy_web.sh
 
 `infra/web.yaml` is one CloudFormation stack: an ECR repository, a CodeBuild project that clones this repo from GitHub and builds the `Dockerfile` (so no local Docker is needed), and an AWS App Runner service that runs `uvicorn app.server:app` with `AGENT_BACKEND=agentcore`. The App Runner instance role is allowed exactly one action, `bedrock-agentcore:InvokeAgentRuntime` on this runtime; no AWS keys are stored anywhere. The service uses a fixed `AGENT_RUNTIME_SESSION_ID`, so every visitor shares one runtime session, and `SWEEP_INTERVAL_SECONDS=0` so only visitors start cycles. Re-run `make deploy-web` after pushing to rebuild; App Runner auto-deploys the new image.
 
-Live: https://dmwmur6m6t.us-east-1.awsapprunner.com (stack `pantry-pilot-web`).
+Live: https://zyp4mghmps.us-east-1.awsapprunner.com (stack `pantry-pilot-web`, App Runner service `pantry-pilot-console`).
 
 Notes: `agentcore/agentcore.json` defines a CodeZip runtime `PantryPilotAgent` (Python 3.12, `main.py`, CDK-managed; the generated CDK app lives in `agentcore/cdk`) whose zip contains `main.py`, `src/`, `data/` and the dependencies from the repo root. The CLI wraps whatever you pass to `invoke` as `{"prompt": "..."}`; `main.py` unwraps a JSON object from that field and treats any other text as an `ask`. The runtime's `PANTRYPILOT_STATE_DIR` is `/tmp/pantrypilot`, so the SQLite store is per container; set `SESSION_BUCKET` for durable Swarm sessions and swap `Store` for DynamoDB for durable decisions. A `Dockerfile` (ARM64, non-root, port 8080) is included for the container build path.
 

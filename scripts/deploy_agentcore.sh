@@ -16,6 +16,7 @@ if grep -q '<ACCOUNT_ID>' agentcore/aws-targets.json; then
 fi
 
 agentcore validate
+echo "==> agentcore deploy -y   (a CDK deployment: CodeZip upload + CloudFormation, usually 3-6 min; CDK prints each resource as it changes)"
 agentcore deploy -y
 
 cat <<'EOF'

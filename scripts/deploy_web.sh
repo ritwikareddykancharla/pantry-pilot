@@ -57,8 +57,15 @@ deploy() {
     --parameter-overrides AgentRuntimeArn="$ARN" GitRef="$GIT_REF" CreateService="$1"
 }
 
-say "1/4  ECR repository and CodeBuild project (stack ${STACK})"
-with_heartbeat "CloudFormation" deploy false
+# The App Runner service can only be created once an image exists, so the very first run creates
+# the stack without it (CreateService=false), builds, then adds it. On re-runs the service already
+# exists and must be kept: passing false again would delete it and its URL.
+HAS_SERVICE=$(aws cloudformation describe-stacks --region "$REGION" --stack-name "$STACK" \
+  --query "Stacks[0].Parameters[?ParameterKey=='CreateService'].ParameterValue | [0]" --output text 2>/dev/null || echo false)
+[ "$HAS_SERVICE" = "true" ] || HAS_SERVICE=false
+
+say "1/4  ECR repository and CodeBuild project (stack ${STACK}, service present: ${HAS_SERVICE})"
+with_heartbeat "CloudFormation" deploy "$HAS_SERVICE"
 
 say "2/4  Building the image in CodeBuild from ${GIT_REF} (usually 4-6 min)"
 BUILD_ID=$(aws codebuild start-build --region "$REGION" --project-name "${PROJECT}-web-build" \
@@ -78,8 +85,8 @@ with_heartbeat "CloudFormation" deploy true
 
 URL=$(aws cloudformation describe-stacks --region "$REGION" --stack-name "$STACK" \
   --query "Stacks[0].Outputs[?OutputKey=='ServiceUrl'].OutputValue" --output text)
-SERVICE_ARN=$(aws apprunner list-services --region "$REGION" \
-  --query "ServiceSummaryList[?ServiceName=='${STACK}'].ServiceArn | [0]" --output text)
+SERVICE_ARN=$(aws cloudformation describe-stacks --region "$REGION" --stack-name "$STACK" \
+  --query "Stacks[0].Outputs[?OutputKey=='ServiceArn'].OutputValue" --output text)
 
 say "4/4  Waiting for App Runner to roll the new image out"
 while :; do

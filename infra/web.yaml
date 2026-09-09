@@ -134,9 +134,11 @@ Resources:
                 - docker push "$IMAGE_URI"
 
   # ---------------------------------------------------------------- web service
+  # The two roles are created unconditionally in the first stack pass so they have existed for
+  # minutes before the service is added. Creating them in the same update as the service made
+  # App Runner intermittently fail with "Failed to deploy your application image" (IAM propagation).
   EcrAccessRole:
     Type: AWS::IAM::Role
-    Condition: CreateServiceCond
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -150,7 +152,6 @@ Resources:
 
   InstanceRole:
     Type: AWS::IAM::Role
-    Condition: CreateServiceCond
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -174,7 +175,7 @@ Resources:
     Type: AWS::AppRunner::AutoScalingConfiguration
     Condition: CreateServiceCond
     Properties:
-      AutoScalingConfigurationName: !Sub "${ProjectName}-web"
+      AutoScalingConfigurationName: !Sub "${ProjectName}-console"
       # One instance: the UI serialises sweeps and shares a single runtime session.
       MinSize: 1
       MaxSize: 1
@@ -185,7 +186,10 @@ Resources:
     Condition: CreateServiceCond
     DependsOn: [EcrAccessRole, InstanceRole]
     Properties:
-      ServiceName: !Sub "${ProjectName}-web"
+      # Not "${ProjectName}-web": after that name had been created and deleted a few times, App Runner
+      # rejected every new service under it ("Failed to deploy your application image") while the
+      # identical configuration under another name deployed fine.
+      ServiceName: !Sub "${ProjectName}-console"
       AutoScalingConfigurationArn: !GetAtt AutoScaling.AutoScalingConfigurationArn
       HealthCheckConfiguration:
         Protocol: HTTP
@@ -232,3 +236,6 @@ Outputs:
   ServiceUrl:
     Condition: CreateServiceCond
     Value: !Sub "https://${Service.ServiceUrl}"
+  ServiceArn:
+    Condition: CreateServiceCond
+    Value: !GetAtt Service.ServiceArn

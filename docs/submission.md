@@ -6,7 +6,7 @@
 
 **Track:** Good Neighbor Agents
 
-**Try it out:** https://dmwmur6m6t.us-east-1.awsapprunner.com (coordinator console on AWS App Runner; the swarm runs on Amazon Bedrock AgentCore Runtime `arn:aws:bedrock-agentcore:us-east-1:796330847946:runtime/PantryPilot_PantryPilotAgent-YouoNt9rM6`)
+**Try it out:** https://zyp4mghmps.us-east-1.awsapprunner.com (coordinator console on AWS App Runner; the swarm runs on Amazon Bedrock AgentCore Runtime `arn:aws:bedrock-agentcore:us-east-1:796330847946:runtime/PantryPilot_PantryPilotAgent-YouoNt9rM6`)
 
 **Code:** https://github.com/ritwikareddykancharla/pantry-pilot
 
