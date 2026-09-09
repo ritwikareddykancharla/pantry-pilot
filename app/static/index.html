@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pantry Pilot: coordinator console</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">PP</div>
+      <div>
+        <div class="brand-name">Pantry Pilot</div>
+        <div class="brand-sub" id="org-name">Coordinator console</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="today" id="today">Loading...</div>
+      <div class="lastrun" id="last-run">Last cycle: never</div>
+      <button class="btn primary" id="btn-sweep">Run daily cycle</button>
+    </div>
+  </header>
+
+  <div class="status-strip" id="status-strip" hidden></div>
+
+  <main class="grid">
+    <section class="panel span-2" id="panel-needs-you">
+      <div class="panel-head">
+        <h2>Needs you <span class="count" id="needs-count">0</span></h2>
+        <span class="hint">Escalations and approvals. Everything else was handled for you.</span>
+      </div>
+      <div id="decisions" class="cards"></div>
+    </section>
+
+    <section class="panel" id="panel-brief">
+      <div class="panel-head"><h2>Weekly brief</h2><span class="hint" id="brief-when"></span></div>
+      <div id="brief" class="brief"></div>
+      <div class="ask">
+        <form id="ask-form">
+          <input id="ask-input" type="text" placeholder="Ask: who is on Saturday morning?" autocomplete="off" />
+          <button class="btn" type="submit">Ask</button>
+        </form>
+        <div id="ask-answer" class="ask-answer" hidden></div>
+      </div>
+    </section>
+
+    <section class="panel span-3" id="panel-board">
+      <div class="panel-head">
+        <h2>This week's board</h2>
+        <span class="legend">
+          <span class="chip full">full</span><span class="chip short">short</span><span class="chip empty">empty</span>
+        </span>
+      </div>
+      <div id="board" class="board"></div>
+    </section>
+
+    <section class="panel" id="panel-inventory">
+      <div class="panel-head"><h2>Inventory</h2><span class="hint">bars vs par</span></div>
+      <div id="inventory" class="inventory"></div>
+      <h3>Expiring soon</h3>
+      <ul id="expiring" class="plain"></ul>
+    </section>
+
+    <section class="panel span-2" id="panel-messages">
+      <div class="panel-head"><h2>Messages</h2><span class="hint" id="msg-counts"></span></div>
+      <form id="inbound-form" class="simulate">
+        <label>Simulate incoming text</label>
+        <select id="inbound-from"></select>
+        <input id="inbound-text" type="text" placeholder="e.g. Sorry, I can't make Saturday after all" autocomplete="off" />
+        <button class="btn" type="submit">Send</button>
+      </form>
+      <div class="two-col">
+        <div><h3>Inbound</h3><div id="inbound" class="msglist"></div></div>
+        <div><h3>Outbound</h3><div id="outbound" class="msglist"></div></div>
+      </div>
+    </section>
+
+    <section class="panel span-3" id="panel-activity">
+      <div class="panel-head">
+        <h2>What I did while you were away</h2>
+        <div class="trail" id="trail"></div>
+      </div>
+      <div id="activity" class="activity"></div>
+    </section>
+  </main>
+
+  <footer class="foot">Pantry Pilot runs in the background on a schedule and only surfaces real decisions. Built with Strands Agents on Amazon Bedrock AgentCore.</footer>
+  <script src="/static/app.js"></script>
+</body>
+</html>
