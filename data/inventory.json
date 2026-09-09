@@ -1,0 +1,20 @@
+[
+  {"id": "I-01", "item": "Rice (5 lb bags)", "qty": 180, "unit": "lbs", "par": 100, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 1.0, "expiry": null},
+  {"id": "I-02", "item": "Canned beans", "qty": 24, "unit": "cans", "par": 80, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 1.0, "expiry": "2027-06-30"},
+  {"id": "I-03", "item": "Diapers size 4", "qty": 2, "unit": "packs", "par": 10, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 3.0, "expiry": null},
+  {"id": "I-04", "item": "Diapers size 2", "qty": 9, "unit": "packs", "par": 8, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 3.0, "expiry": null},
+  {"id": "I-05", "item": "Peanut butter", "qty": 40, "unit": "jars", "par": 30, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 1.1, "expiry": "2027-02-15"},
+  {"id": "I-06", "item": "Pasta", "qty": 95, "unit": "lbs", "par": 60, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 1.0, "expiry": "2027-09-01"},
+  {"id": "I-07", "item": "Canned tomatoes", "qty": 55, "unit": "cans", "par": 50, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 1.0, "expiry": "2027-04-30"},
+  {"id": "I-08", "item": "Cereal", "qty": 22, "unit": "boxes", "par": 30, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 1.2, "expiry": "2027-01-31"},
+  {"id": "I-09", "item": "Cooking oil", "qty": 14, "unit": "bottles", "par": 12, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 2.0, "expiry": "2027-03-31"},
+  {"id": "I-10", "item": "Baby formula", "qty": 6, "unit": "cans", "par": 8, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 1.5, "expiry": "2027-05-31"},
+  {"id": "I-11", "item": "Toilet paper", "qty": 30, "unit": "rolls", "par": 40, "category": "dry", "storage_kind": "dry", "storage_units_per_unit": 0.3, "expiry": null},
+  {"id": "I-12", "item": "Milk (gallons)", "qty": 18, "unit": "gallons", "par": 12, "category": "cold", "storage_kind": "cold", "storage_units_per_unit": 0.25, "expiry": "2026-09-13"},
+  {"id": "I-13", "item": "Eggs (dozens)", "qty": 20, "unit": "dozens", "par": 15, "category": "cold", "storage_kind": "cold", "storage_units_per_unit": 0.1, "expiry": "2026-09-24"},
+  {"id": "I-14", "item": "Yogurt cups", "qty": 36, "unit": "cups", "par": 30, "category": "cold", "storage_kind": "cold", "storage_units_per_unit": 0.02, "expiry": "2026-09-14"},
+  {"id": "I-15", "item": "Apples", "qty": 35, "unit": "lbs", "par": 20, "category": "cold", "storage_kind": "cold", "storage_units_per_unit": 0.06, "expiry": "2026-09-15"},
+  {"id": "I-16", "item": "Frozen chicken", "qty": 60, "unit": "lbs", "par": 50, "category": "frozen", "storage_kind": "frozen", "storage_units_per_unit": 0.05, "expiry": "2026-11-30"},
+  {"id": "I-17", "item": "Ground beef", "qty": 50, "unit": "lbs", "par": 40, "category": "frozen", "storage_kind": "frozen", "storage_units_per_unit": 0.05, "expiry": "2026-12-15"},
+  {"id": "I-18", "item": "Frozen vegetables", "qty": 50, "unit": "bags", "par": 40, "category": "frozen", "storage_kind": "frozen", "storage_units_per_unit": 0.1, "expiry": "2027-01-31"}
+]

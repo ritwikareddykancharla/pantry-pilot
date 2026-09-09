@@ -1,0 +1,65 @@
+[
+  {
+    "id": "M-001",
+    "ts": "2026-09-11T06:42:00",
+    "channel": "sms",
+    "from_id": "V-01",
+    "from_name": "Dana Whitfield",
+    "text": "So sorry, can't make tomorrow 9am, kid is sick",
+    "handled": false
+  },
+  {
+    "id": "M-002",
+    "ts": "2026-09-11T07:05:00",
+    "channel": "sms",
+    "from_id": "V-02",
+    "from_name": "Priya Raman",
+    "text": "Hey I can do Saturday morning if you still need people!",
+    "handled": false
+  },
+  {
+    "id": "M-003",
+    "ts": "2026-09-11T07:11:00",
+    "channel": "sms",
+    "from_id": "V-03",
+    "from_name": "Marcus Lee",
+    "text": "I could also do Sat 9",
+    "handled": false
+  },
+  {
+    "id": "M-004",
+    "ts": "2026-09-11T07:30:00",
+    "channel": "sms",
+    "from_id": "C-LINDA",
+    "from_name": "Linda Moreno",
+    "text": "I have about 40 lbs of rice and 20 cans of beans from our church drive, when can I drop off?",
+    "handled": false
+  },
+  {
+    "id": "M-005",
+    "ts": "2026-09-11T07:48:00",
+    "channel": "sms",
+    "from_id": "C-RIVERSIDE",
+    "from_name": "Pastor Dave Kim (Riverside Church)",
+    "text": "We can give you 30 frozen turkeys Friday if you can store them",
+    "handled": false
+  },
+  {
+    "id": "M-006",
+    "ts": "2026-09-11T08:02:00",
+    "channel": "sms",
+    "from_id": "V-05",
+    "from_name": "Sam Okafor",
+    "text": "Can I sign up for Tue 4pm?",
+    "handled": false
+  },
+  {
+    "id": "M-007",
+    "ts": "2026-09-11T08:15:00",
+    "channel": "whatsapp",
+    "from_id": "V-04",
+    "from_name": "Jorge Alvarez",
+    "text": "Is the Thursday delivery run still happening? I can drive.",
+    "handled": false
+  }
+]

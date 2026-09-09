@@ -1,0 +1,194 @@
+[
+  {
+    "id": "V-01",
+    "name": "Dana Whitfield",
+    "phone": "+1-555-010-0201",
+    "skills": ["intake", "sorting"],
+    "availability": [
+      {"day": "sat", "start": "08:00", "end": "13:00"},
+      {"day": "tue", "start": "16:00", "end": "19:00"}
+    ],
+    "reliability": 0.92,
+    "recent_shifts": ["2026-09-05", "2026-08-29", "2026-08-22"],
+    "notes": "Two kids; texts back quickly.",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-02",
+    "name": "Priya Raman",
+    "phone": "+1-555-010-0202",
+    "skills": ["intake", "spanish"],
+    "availability": [
+      {"day": "sat", "start": "09:00", "end": "13:00"}
+    ],
+    "reliability": 0.95,
+    "recent_shifts": ["2026-08-15"],
+    "notes": "New this summer; has only done one shift so far.",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-03",
+    "name": "Marcus Lee",
+    "phone": "+1-555-010-0203",
+    "skills": ["intake", "sorting", "forklift"],
+    "availability": [
+      {"day": "sat", "start": "09:00", "end": "13:00"},
+      {"day": "thu", "start": "16:00", "end": "19:00"}
+    ],
+    "reliability": 0.88,
+    "recent_shifts": ["2026-09-05", "2026-09-03", "2026-08-29"],
+    "notes": "Forklift certified (renewed Mar 2026). Always says yes; watch for burnout.",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-04",
+    "name": "Jorge Alvarez",
+    "phone": "+1-555-010-0204",
+    "skills": ["driver", "sorting", "spanish"],
+    "availability": [
+      {"day": "thu", "start": "15:00", "end": "19:00"},
+      {"day": "sat", "start": "09:00", "end": "13:00"}
+    ],
+    "reliability": 0.9,
+    "recent_shifts": ["2026-08-27"],
+    "notes": "Has a pickup truck; does the Riverside seniors run.",
+    "preferred_contact": "whatsapp"
+  },
+  {
+    "id": "V-05",
+    "name": "Sam Okafor",
+    "phone": "+1-555-010-0205",
+    "skills": ["sorting"],
+    "availability": [
+      {"day": "tue", "start": "16:00", "end": "19:00"},
+      {"day": "sat", "start": "09:00", "end": "13:00"}
+    ],
+    "reliability": 0.8,
+    "recent_shifts": [],
+    "notes": "Student, 16. Needs a supervisor on shift (parent consent on file).",
+    "minor": true,
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-06",
+    "name": "Helen Park",
+    "phone": "+1-555-010-0206",
+    "skills": ["supervisor", "intake", "sorting"],
+    "availability": [
+      {"day": "tue", "start": "16:00", "end": "19:00"},
+      {"day": "sat", "start": "09:00", "end": "13:00"}
+    ],
+    "reliability": 0.97,
+    "recent_shifts": ["2026-09-08", "2026-09-01"],
+    "notes": "Retired nurse; shift lead most Tuesdays.",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-07",
+    "name": "Tom Bradley",
+    "phone": "+1-555-010-0207",
+    "skills": ["supervisor", "forklift", "driver"],
+    "availability": [
+      {"day": "thu", "start": "16:00", "end": "19:00"},
+      {"day": "sat", "start": "08:00", "end": "12:00"}
+    ],
+    "reliability": 0.85,
+    "recent_shifts": ["2026-09-03"],
+    "notes": "Forklift certified. Owns a van.",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-08",
+    "name": "Grace Nguyen",
+    "phone": "+1-555-010-0208",
+    "skills": ["sorting", "intake"],
+    "availability": [
+      {"day": "tue", "start": "16:00", "end": "19:00"},
+      {"day": "thu", "start": "16:00", "end": "19:00"}
+    ],
+    "reliability": 0.9,
+    "recent_shifts": ["2026-09-08", "2026-09-03"],
+    "notes": "",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-09",
+    "name": "Luis Ortega",
+    "phone": "+1-555-010-0209",
+    "skills": ["driver", "forklift"],
+    "availability": [
+      {"day": "thu", "start": "16:00", "end": "19:00"}
+    ],
+    "reliability": 0.78,
+    "recent_shifts": ["2026-08-20"],
+    "notes": "Forklift certified. Sometimes late from work.",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-10",
+    "name": "Maria Santos",
+    "phone": "+1-555-010-0210",
+    "skills": ["intake", "spanish", "supervisor"],
+    "availability": [
+      {"day": "sat", "start": "09:00", "end": "13:00"}
+    ],
+    "reliability": 0.93,
+    "recent_shifts": ["2026-09-05", "2026-08-29"],
+    "notes": "Saturday shift lead.",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-11",
+    "name": "Ben Carter",
+    "phone": "+1-555-010-0211",
+    "skills": ["sorting"],
+    "availability": [
+      {"day": "tue", "start": "16:00", "end": "19:00"},
+      {"day": "sat", "start": "09:00", "end": "13:00"}
+    ],
+    "reliability": 0.7,
+    "recent_shifts": ["2026-09-01", "2026-08-25"],
+    "notes": "Has cancelled twice this summer; confirm the day before.",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-12",
+    "name": "Fatima Hassan",
+    "phone": "+1-555-010-0212",
+    "skills": ["intake", "sorting"],
+    "availability": [
+      {"day": "tue", "start": "16:00", "end": "19:00"}
+    ],
+    "reliability": 0.91,
+    "recent_shifts": ["2026-09-01"],
+    "notes": "",
+    "preferred_contact": "whatsapp"
+  },
+  {
+    "id": "V-13",
+    "name": "Ravi Mehta",
+    "phone": "+1-555-010-0213",
+    "skills": ["sorting", "driver"],
+    "availability": [
+      {"day": "sat", "start": "09:00", "end": "13:00"}
+    ],
+    "reliability": 0.86,
+    "recent_shifts": ["2026-09-05"],
+    "notes": "",
+    "preferred_contact": "sms"
+  },
+  {
+    "id": "V-14",
+    "name": "Ellie Chen",
+    "phone": "+1-555-010-0214",
+    "skills": ["intake"],
+    "availability": [
+      {"day": "sat", "start": "09:00", "end": "13:00"},
+      {"day": "tue", "start": "16:00", "end": "19:00"}
+    ],
+    "reliability": 0.89,
+    "recent_shifts": ["2026-08-29"],
+    "notes": "Prefers WhatsApp.",
+    "preferred_contact": "whatsapp"
+  }
+]

@@ -1,0 +1,127 @@
+[
+  {
+    "id": "S-0912-INTAKE",
+    "date": "2026-09-12",
+    "start": "09:00",
+    "end": "13:00",
+    "title": "Saturday intake desk",
+    "role": "intake",
+    "required_skills": ["intake"],
+    "needed": 3,
+    "roster": [
+      {"volunteer_id": "V-01", "status": "confirmed"},
+      {"volunteer_id": "V-10", "status": "confirmed"},
+      {"volunteer_id": "V-14", "status": "confirmed"}
+    ],
+    "notes": "Ben Carter cancelled on Sep 8; Ellie moved in from the waitlist.",
+    "reminder_sent": false
+  },
+  {
+    "id": "S-0912-SORT",
+    "date": "2026-09-12",
+    "start": "09:00",
+    "end": "13:00",
+    "title": "Saturday sorting",
+    "role": "sorting",
+    "required_skills": ["sorting"],
+    "needed": 2,
+    "roster": [
+      {"volunteer_id": "V-13", "status": "confirmed"},
+      {"volunteer_id": "V-11", "status": "tentative"}
+    ],
+    "notes": "",
+    "reminder_sent": false
+  },
+  {
+    "id": "S-0915-EVE",
+    "date": "2026-09-15",
+    "start": "16:00",
+    "end": "19:00",
+    "title": "Tuesday distribution",
+    "role": "intake",
+    "required_skills": ["intake"],
+    "needed": 3,
+    "roster": [
+      {"volunteer_id": "V-08", "status": "confirmed"}
+    ],
+    "notes": "No supervisor confirmed yet.",
+    "reminder_sent": false
+  },
+  {
+    "id": "S-0917-DELIVERY",
+    "date": "2026-09-17",
+    "start": "16:00",
+    "end": "18:00",
+    "title": "Thursday delivery run (Riverside seniors)",
+    "role": "driver",
+    "required_skills": ["driver"],
+    "needed": 1,
+    "roster": [],
+    "notes": "12 boxes to Riverside Senior Apartments. Needs a truck or van.",
+    "reminder_sent": false
+  },
+  {
+    "id": "S-0917-EVE",
+    "date": "2026-09-17",
+    "start": "16:00",
+    "end": "19:00",
+    "title": "Thursday distribution",
+    "role": "intake",
+    "required_skills": ["intake"],
+    "needed": 3,
+    "roster": [
+      {"volunteer_id": "V-08", "status": "confirmed"},
+      {"volunteer_id": "V-07", "status": "confirmed"}
+    ],
+    "notes": "",
+    "reminder_sent": false
+  },
+  {
+    "id": "S-0919-INTAKE",
+    "date": "2026-09-19",
+    "start": "09:00",
+    "end": "13:00",
+    "title": "Saturday intake desk",
+    "role": "intake",
+    "required_skills": ["intake"],
+    "needed": 4,
+    "roster": [
+      {"volunteer_id": "V-06", "status": "confirmed"},
+      {"volunteer_id": "V-10", "status": "tentative"},
+      {"volunteer_id": "V-14", "status": "confirmed"}
+    ],
+    "notes": "Big week: school backpack drive pickup.",
+    "reminder_sent": false
+  },
+  {
+    "id": "S-0919-SORT",
+    "date": "2026-09-19",
+    "start": "09:00",
+    "end": "13:00",
+    "title": "Saturday sorting",
+    "role": "sorting",
+    "required_skills": ["sorting"],
+    "needed": 2,
+    "roster": [
+      {"volunteer_id": "V-13", "status": "confirmed"},
+      {"volunteer_id": "V-05", "status": "tentative"}
+    ],
+    "notes": "Sam (16) is covered by Helen (supervisor) on the intake desk.",
+    "reminder_sent": false
+  },
+  {
+    "id": "S-0919-FORKLIFT",
+    "date": "2026-09-19",
+    "start": "08:00",
+    "end": "10:00",
+    "title": "Pallet unload (forklift)",
+    "role": "forklift",
+    "required_skills": ["forklift"],
+    "needed": 1,
+    "roster": [
+      {"volunteer_id": "V-07", "status": "confirmed"}
+    ],
+    "notes": "Regional food bank pallet arrives 8:15.",
+    "reminder_sent": false
+  }
+]

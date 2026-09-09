@@ -1,0 +1,65 @@
+name: Maple Street Community Pantry
+short_name: Maple Street Pantry
+address: 412 Maple Street
+timezone: America/Chicago
+
+coordinator:
+  contact_id: coordinator
+  name: Aisha Bello
+  phone: "+1-555-010-0100"
+  preferred_contact: sms
+
+# Public open hours. Donation drop-offs are proposed inside these windows only.
+open_hours:
+  - day: tue
+    start: "16:00"
+    end: "19:00"
+  - day: thu
+    start: "16:00"
+    end: "19:00"
+  - day: sat
+    start: "09:00"
+    end: "13:00"
+
+# Storage capacity. Inventory items carry storage_kind + storage_units_per_unit so the
+# steward can compute what is free before accepting a large donation.
+storage:
+  dry:
+    label: Dry shelves (back room)
+    capacity: 2400
+    unit: lbs
+  cold:
+    label: Two upright fridges
+    capacity: 40
+    unit: cuft
+  frozen:
+    label: One chest freezer
+    capacity: 18
+    unit: cuft
+    turkey_cuft: 0.75
+
+rules:
+  minor_age: 18
+  minors_need_supervisor: true
+  forklift_requires_certification: true
+  broadcast_requires_approval: true
+  purchase_approval_threshold_usd: 50
+  max_ask_rounds_before_escalation: 2
+  short_staffed_escalation_hours: 24
+  quiet_hours:
+    start: "21:00"
+    end: "08:00"
+  text:
+    - Volunteers under 18 may only work a shift that has a confirmed supervisor-skilled volunteer on it.
+    - Only forklift-certified volunteers operate the pallet jack or forklift.
+    - Messages to all volunteers (broadcasts) need the coordinator's approval before sending.
+    - Supply purchases over 50 USD need the coordinator's approval; below that, log and proceed.
+    - Do not accept frozen or cold donations that exceed free freezer or fridge capacity; escalate instead.
+    - Do not text volunteers during quiet hours (9pm to 8am); queue the message for the morning.
+    - Fill open slots by fairness first (fewest recent shifts), then reliability.
+    - After two rounds of asks, if a shift within 24 hours is still short, escalate to the coordinator.
+
+tone:
+  - Warm, brief, plain language. One idea per message. No exclamation marks in a row.
+  - Sign 1:1 messages as "Pantry Pilot (for Aisha)".
+  - Never promise something the coordinator has not approved.

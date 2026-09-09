@@ -1,0 +1,38 @@
+[
+  {
+    "id": "C-LINDA",
+    "name": "Linda Moreno",
+    "kind": "donor",
+    "org": "St. Anne's Church food drive",
+    "phone": "+1-555-010-0301",
+    "preferred_contact": "sms",
+    "notes": "Runs the fall food drive every year."
+  },
+  {
+    "id": "C-RIVERSIDE",
+    "name": "Pastor Dave Kim",
+    "kind": "partner",
+    "org": "Riverside Church",
+    "phone": "+1-555-010-0302",
+    "preferred_contact": "sms",
+    "notes": "Partner org; shares surplus from their freezer program."
+  },
+  {
+    "id": "C-FOODBANK",
+    "name": "Regional Food Bank dispatch",
+    "kind": "partner",
+    "org": "Regional Food Bank",
+    "phone": "+1-555-010-0303",
+    "preferred_contact": "email",
+    "notes": "Pallet deliveries alternate Saturdays."
+  },
+  {
+    "id": "C-VENDOR",
+    "name": "Restaurant Depot (business account)",
+    "kind": "vendor",
+    "org": "Restaurant Depot",
+    "phone": "+1-555-010-0304",
+    "preferred_contact": "email",
+    "notes": "Bulk diapers, formula, paper goods. Net-30 account."
+  }
+]

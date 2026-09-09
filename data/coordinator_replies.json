@@ -1,0 +1,17 @@
+[
+  {
+    "matches": "Saturday intake",
+    "text": "Give Saturday 9am intake to Priya; tell Marcus he is first alternate and thank him.",
+    "note": "Used by scripts/demo.sh to answer the Priya vs Marcus escalation."
+  },
+  {
+    "matches": "turkeys",
+    "text": "Accept 10 turkeys for Friday. Ask Riverside to offer the other 20 to the Regional Food Bank.",
+    "note": "Used by scripts/demo.sh to answer the freezer capacity escalation."
+  },
+  {
+    "matches": "Sam",
+    "text": "Ask Helen to supervise Tuesday. If she says yes, confirm Sam; otherwise tell Sam we will find another Tuesday.",
+    "note": "Used by scripts/demo.sh to answer the minor-on-shift escalation."
+  }
+]
