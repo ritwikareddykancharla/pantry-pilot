@@ -1,4 +1,5 @@
 {
+  "$schema": "https://schema.agentcore.aws.dev/v1/agentcore.json",
   "name": "PantryPilot",
   "version": 1,
   "tags": {
@@ -11,16 +12,27 @@
       "name": "PantryPilotAgent",
       "build": "CodeZip",
       "entrypoint": "main.py",
-      "codeLocation": "../",
+      "codeLocation": ".",
       "runtimeVersion": "PYTHON_3_12",
       "networkMode": "PUBLIC",
       "protocol": "HTTP",
       "envVars": [
-        { "name": "BEDROCK_MODEL_ID", "value": "global.anthropic.claude-sonnet-4-6" },
-        { "name": "PANTRYPILOT_STATE_DIR", "value": "/tmp/pantrypilot" },
-        { "name": "DEMO_TODAY", "value": "2026-09-11" }
+        {
+          "name": "BEDROCK_MODEL_ID",
+          "value": "global.anthropic.claude-sonnet-4-6"
+        },
+        {
+          "name": "PANTRYPILOT_STATE_DIR",
+          "value": "/tmp/pantrypilot"
+        },
+        {
+          "name": "DEMO_TODAY",
+          "value": "2026-09-11"
+        }
       ],
-      "instrumentation": { "enableOtel": true }
+      "instrumentation": {
+        "enableOtel": true
+      }
     }
   ],
   "memories": [],
@@ -29,5 +41,6 @@
   "evaluators": [],
   "onlineEvalConfigs": [],
   "agentCoreGateways": [],
-  "policyEngines": []
+  "policyEngines": [],
+  "managedBy": "CDK"
 }

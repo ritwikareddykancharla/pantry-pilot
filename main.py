@@ -12,12 +12,18 @@ Unknown actions return {"ok": false, "error": "..."}; the entrypoint never raise
 
 from __future__ import annotations
 
+import json
 import logging
+import sys
+from pathlib import Path
 from typing import Any
 
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 
-from pantrypilot import config, service
+# The AgentCore CodeZip installs dependencies but not this project, so make src/ importable.
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
+from pantrypilot import config, service  # noqa: E402
 
 config.configure_logging()
 logger = logging.getLogger("pantrypilot.main")
@@ -25,9 +31,29 @@ logger = logging.getLogger("pantrypilot.main")
 app = BedrockAgentCoreApp()
 
 
+def _normalize(payload: dict | None) -> dict:
+    """Accept the `agentcore invoke` shape too: it wraps whatever you pass as {"prompt": "<text>"}.
+
+    A prompt that is a JSON object becomes the payload; any other bare prompt is an "ask".
+    """
+    payload = dict(payload or {})
+    if "action" in payload or "prompt" not in payload:
+        return payload
+    prompt = payload["prompt"]
+    if isinstance(prompt, str) and prompt.lstrip().startswith("{"):
+        try:
+            inner = json.loads(prompt)
+        except ValueError:
+            inner = None
+        if isinstance(inner, dict):
+            return {**payload, **inner}
+    return {**payload, "action": "ask"}
+
+
 def dispatch(payload: dict[str, Any]) -> dict[str, Any]:
     """Route a payload to the service layer. Shared by the AgentCore entrypoint and tests."""
-    action = str((payload or {}).get("action", "")).lower()
+    payload = _normalize(payload)
+    action = str(payload.get("action", "")).lower()
     if action == "sweep":
         out = service.run_sweep()
         return {

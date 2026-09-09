@@ -8,9 +8,9 @@
 #   Enable Anthropic Claude model access in the Bedrock console for us-east-1.
 set -euo pipefail
 
-cd "$(dirname "$0")/../agentcore"
+cd "$(dirname "$0")/.."  # the CLI must run from the project root
 
-if grep -q '<ACCOUNT_ID>' aws-targets.json; then
+if grep -q '<ACCOUNT_ID>' agentcore/aws-targets.json; then
   echo "edit agentcore/aws-targets.json: replace <ACCOUNT_ID> with your AWS account id" >&2
   exit 1
 fi
