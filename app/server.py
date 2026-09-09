@@ -40,6 +40,7 @@ class Runner:
         self.backend = build_backend()
         self.lock = threading.Lock()
         self.running: str | None = None
+        self.started_at: float | None = None
         self.last_error: str | None = None
         self.last_result: dict[str, Any] | None = None
         self.queue: list[tuple[str, dict[str, Any]]] = []
@@ -50,6 +51,7 @@ class Runner:
     def _run(self, label: str, fn, *args: Any, **kwargs: Any) -> None:
         with self.lock:
             self.running = label
+            self.started_at = time.time()
             try:
                 self.last_result = fn(*args, **kwargs)
                 self.last_error = None
@@ -58,6 +60,10 @@ class Runner:
                 self.last_error = f"{label}: {exc}"
             finally:
                 self.running = None
+                self.started_at = None
+
+    def running_for_seconds(self) -> int | None:
+        return int(time.time() - self.started_at) if self.running and self.started_at else None
 
     def start(self, label: str, fn, *args: Any, **kwargs: Any) -> bool:
         """Start a background job. Returns False if one is already running (caller may retry)."""
@@ -97,6 +103,27 @@ class Runner:
         self._scheduler.start()
         logger.info("background scheduler: sweep every %ss", interval)
 
+    def start_keepalive(self) -> None:
+        """Ping the AgentCore session so its microVM (and the state in it) stays warm.
+
+        The runtime ends an idle session after 15 minutes; the next call then pays a cold start and
+        starts from an empty store. A cheap ``status`` call every few minutes avoids both while the
+        console is up. Set KEEPALIVE_SECONDS=0 to disable.
+        """
+        default = "0" if isinstance(self.backend, LocalBackend) else "600"
+        interval = int(os.getenv("KEEPALIVE_SECONDS", default) or 0)
+        if interval <= 0:
+            return
+
+        def loop() -> None:
+            while not self._stop.wait(interval):
+                try:
+                    self.backend.status()
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("keepalive failed: %s", exc)
+
+        threading.Thread(target=loop, daemon=True, name="pantrypilot-keepalive").start()
+
     def stop_scheduler(self) -> None:
         self._stop.set()
 
@@ -109,6 +136,7 @@ async def lifespan(_: FastAPI):
     if isinstance(runner.backend, LocalBackend):
         service.ensure_seeded()
     runner.start_scheduler()
+    runner.start_keepalive()
     yield
     runner.stop_scheduler()
 
@@ -135,6 +163,7 @@ def _runner_state() -> dict[str, Any]:
     return {
         "backend": type(runner.backend).__name__,
         "running": runner.running,
+        "running_for_seconds": runner.running_for_seconds(),
         "last_error": runner.last_error,
         "sweep_interval_seconds": int(os.getenv("SWEEP_INTERVAL_SECONDS", "900") or 0),
     }

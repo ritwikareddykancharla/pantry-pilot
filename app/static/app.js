@@ -1,8 +1,13 @@
-/* Pantry Pilot coordinator console. Vanilla JS; polls /api/state every 4 seconds. */
+/* Pantry Pilot coordinator console. Vanilla JS; polls /api/state every 4 s (every 2 s while a cycle runs). */
 (function () {
   "use strict";
 
   const POLL_MS = 4000;
+  const POLL_FAST_MS = 2000;
+  const AGENT_LABEL = { dispatcher: "Dispatcher", roster: "Roster", steward: "Steward" };
+  let runningSince = null;
+  let pollTimer = null;
+  let refreshing = false;
   const $ = (sel) => document.querySelector(sel);
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);
@@ -33,11 +38,18 @@
   }
 
   async function refresh() {
+    if (refreshing) return; // a slow /api/state (the runtime is busy) must not stack up requests
+    refreshing = true;
     try {
       state = await api("/api/state");
       render();
     } catch (err) {
       showStatus("Cannot reach the server: " + err.message, true);
+    } finally {
+      refreshing = false;
+      clearTimeout(pollTimer);
+      const active = state && state.runner && state.runner.running;
+      pollTimer = setTimeout(refresh, active ? POLL_FAST_MS : POLL_MS);
     }
   }
 
@@ -49,6 +61,43 @@
     strip.className = "status-strip" + (isError ? " error" : "");
     if (!isError) strip.appendChild(el("span", "dot"));
     strip.appendChild(el("span", null, text));
+  }
+
+  // While a cycle runs, the strip shows which agent is working, for how long, and its last few steps.
+  function showLive(label, progress) {
+    const strip = $("#status-strip");
+    strip.innerHTML = "";
+    strip.hidden = false;
+    strip.className = "status-strip live";
+    const lines = (progress || []).slice(-5);
+    const last = lines[lines.length - 1];
+    const head = el("div", "live-head");
+    head.appendChild(el("span", "dot"));
+    const who = last ? `${AGENT_LABEL[last.agent] || last.agent} is working` : "starting the swarm";
+    head.appendChild(el("span", "live-title", `Agents are working on the ${label}: ${who}.`));
+    const elapsed = el("span", "live-elapsed");
+    elapsed.id = "live-elapsed";
+    head.appendChild(elapsed);
+    strip.appendChild(head);
+    const list = el("ol", "live-lines");
+    lines
+      .filter((p, i) => p.kind !== "thinking" || i === lines.length - 1)
+      .forEach((p) => {
+        const li = el("li", p.kind);
+        li.appendChild(el("span", "who", AGENT_LABEL[p.agent] || p.agent));
+        li.appendChild(el("span", null, p.text.length > 180 ? p.text.slice(0, 177) + "..." : p.text));
+        list.appendChild(li);
+      });
+    strip.appendChild(list);
+    tickElapsed();
+  }
+
+  function tickElapsed() {
+    const e = document.getElementById("live-elapsed");
+    if (!e) return;
+    if (runningSince == null) { e.textContent = ""; return; }
+    const s = Math.max(0, Math.round((Date.now() - runningSince) / 1000));
+    e.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   }
 
   // ------------------------------------------------------------------ render
@@ -63,7 +112,8 @@
     const running = s.runner && s.runner.running;
     $("#btn-sweep").disabled = !!running;
     $("#btn-sweep").textContent = running ? "Running..." : "Run daily cycle";
-    if (running) showStatus(`Agents are working: ${running}. The console updates as they finish.`);
+    runningSince = running ? Date.now() - ((s.runner && s.runner.running_for_seconds) || 0) * 1000 : null;
+    if (running) showLive(running, s.progress);
     else if (s.runner && s.runner.last_error) showStatus(s.runner.last_error, true);
     else showStatus(null);
 
@@ -395,5 +445,5 @@
   };
 
   refresh();
-  setInterval(refresh, POLL_MS);
+  setInterval(tickElapsed, 1000);
 })();

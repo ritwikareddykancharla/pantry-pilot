@@ -6,6 +6,10 @@
 
 **Track:** Good Neighbor Agents
 
+**Try it out:** https://dmwmur6m6t.us-east-1.awsapprunner.com (coordinator console on AWS App Runner; the swarm runs on Amazon Bedrock AgentCore Runtime `arn:aws:bedrock-agentcore:us-east-1:796330847946:runtime/PantryPilot_PantryPilotAgent-YouoNt9rM6`)
+
+**Code:** https://github.com/ritwikareddykancharla/pantry-pilot
+
 ## Inspiration
 
 Small food pantries run on one or two volunteer coordinators. Their evenings go to texting for Saturday cover after two cancellations, remembering who is trained on intake, telling a donor when to bring 40 lbs of rice, and noticing diapers are almost out. None of it is hard; it is relentless and it happens on a phone at 9pm. Coordinator burnout is one of the main reasons small pantries shrink. We wanted an assistant that does the routine part and asks the coordinator only when a person needs to decide.
@@ -42,4 +46,4 @@ Real connectors (Twilio SMS/WhatsApp inbound and outbound, Google Sheets or Airt
 
 ## Built with
 
-Python 3.12, Strands Agents SDK, Amazon Bedrock (Claude Sonnet 4.6), Amazon Bedrock AgentCore Runtime, FastAPI, SQLite, Pydantic, uv, ruff, pytest, vanilla JavaScript.
+Python 3.12, Strands Agents SDK, Amazon Bedrock (Claude Sonnet 4.6), Amazon Bedrock AgentCore Runtime, AWS App Runner (console hosting), AWS CodeBuild and CloudFormation, FastAPI, SQLite, Pydantic, uv, ruff, pytest, vanilla JavaScript.

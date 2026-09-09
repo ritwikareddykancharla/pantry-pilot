@@ -21,7 +21,7 @@ from strands.multiagent import Swarm
 from strands.session.session_manager import SessionManager
 
 from . import prompts, tools
-from .hooks import AuditHook
+from .hooks import AuditHook, ProgressHook
 from .model import build_model
 
 ModelFactory = Callable[[str], Model]
@@ -74,6 +74,7 @@ def build_agents(
     """Build the three swarm agents keyed by name."""
     model_for = model_for or _default_model_for()
     audit = audit or AuditHook()
+    hooks = [audit, ProgressHook()]
     return {
         "dispatcher": _agent(
             "dispatcher",
@@ -81,10 +82,10 @@ def build_agents(
             tools.DISPATCHER_TOOLS,
             model_for("dispatcher"),
             cycle_id=cycle_id,
-            hooks=[audit],
+            hooks=hooks,
         ),
         "roster": _agent(
-            "roster", prompts.ROSTER_PROMPT, tools.ROSTER_TOOLS, model_for("roster"), cycle_id=cycle_id, hooks=[audit]
+            "roster", prompts.ROSTER_PROMPT, tools.ROSTER_TOOLS, model_for("roster"), cycle_id=cycle_id, hooks=hooks
         ),
         "steward": _agent(
             "steward",
@@ -92,7 +93,7 @@ def build_agents(
             tools.STEWARD_TOOLS,
             model_for("steward"),
             cycle_id=cycle_id,
-            hooks=[audit],
+            hooks=hooks,
         ),
     }
 

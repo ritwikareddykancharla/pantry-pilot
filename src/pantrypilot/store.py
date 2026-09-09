@@ -68,6 +68,14 @@ CREATE TABLE IF NOT EXISTS audit (
     result TEXT,
     status TEXT
 );
+CREATE TABLE IF NOT EXISTS progress (
+    seq INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts TEXT NOT NULL,
+    cycle_id TEXT,
+    agent TEXT,
+    kind TEXT NOT NULL,
+    text TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS cycles (
     id TEXT PRIMARY KEY,
     seq INTEGER NOT NULL,
@@ -403,6 +411,28 @@ class Store:
         d = dict(row)
         d["input"] = _loads(d["input"], {})
         return d
+
+    # ------------------------------------------------------------------ progress (live narration)
+    def add_progress(self, *, cycle_id: str | None, agent: str | None, kind: str, text: str) -> None:
+        """What an agent said or is about to call, written as it happens so the console can show it live."""
+        with self._lock:
+            self._conn.execute(
+                "INSERT INTO progress(ts, cycle_id, agent, kind, text) VALUES (?,?,?,?,?)",
+                (config.now_iso(), cycle_id, agent, kind, text[:600]),
+            )
+            self._conn.commit()
+
+    def list_progress(self, *, cycle_id: str | None = None, limit: int = 40) -> list[dict[str, Any]]:
+        """Most recent narration lines, oldest first."""
+        sql, params = "SELECT * FROM progress", []
+        if cycle_id:
+            sql += " WHERE cycle_id = ?"
+            params.append(cycle_id)
+        sql += " ORDER BY seq DESC LIMIT ?"
+        params.append(limit)
+        with self._lock:
+            rows = self._conn.execute(sql, params).fetchall()
+        return [dict(r) for r in reversed(rows)]
 
     # ------------------------------------------------------------------ cycles / reports
     def start_cycle(self, kind: str, task: str) -> dict[str, Any]:

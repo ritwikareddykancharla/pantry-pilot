@@ -4,7 +4,10 @@
 # No local Docker needed: CodeBuild clones the public GitHub repo (GitRef, default main), builds the
 # image and pushes it to ECR; App Runner serves it with an HTTPS URL. Everything is one
 # CloudFormation stack (infra/web.yaml). Re-run after pushing to rebuild; App Runner auto-deploys
-# the new image.
+# the new image and this script waits until that rollout is live.
+#
+# Every long step prints a progress line every 15 s (phase + elapsed), so a quiet terminal
+# always means "done", never "hung". Typical total: 8-12 minutes.
 #
 # Requires: AWS CLI with credentials for the target account, the AgentCore runtime already
 # deployed (scripts/deploy_agentcore.sh), and the commit you want to serve pushed to GitHub.
@@ -16,6 +19,26 @@ RUNTIME_NAME=PantryPilot_PantryPilotAgent
 STACK="${PROJECT}-web"
 REGION="${AWS_REGION:-us-east-1}"
 GIT_REF="${GIT_REF:-main}"
+T0=$(date +%s)
+
+elapsed() { local s=$(( $(date +%s) - T0 )); printf '%d:%02d' $((s / 60)) $((s % 60)); }
+say() { echo "[$(elapsed)] $*"; }
+
+# Run a blocking command in the background and print a heartbeat while it runs.
+with_heartbeat() {
+  local label=$1; shift
+  "$@" & local pid=$!
+  while kill -0 "$pid" 2>/dev/null; do
+    sleep 15
+    kill -0 "$pid" 2>/dev/null && say "  ... ${label} still running: $(stack_activity)"
+  done
+  wait "$pid"
+}
+
+stack_activity() {
+  aws cloudformation describe-stack-events --region "$REGION" --stack-name "$STACK" \
+    --query 'StackEvents[0].[LogicalResourceId,ResourceStatus]' --output text 2>/dev/null | tr '\t' ' ' || echo "creating stack"
+}
 
 ARN="${AGENT_RUNTIME_ARN:-}"
 if [ -z "$ARN" ]; then
@@ -26,6 +49,7 @@ if [ -z "$ARN" ] || [ "$ARN" = "None" ]; then
   echo "No AgentCore runtime named ${RUNTIME_NAME} in ${REGION}; deploy it first or set AGENT_RUNTIME_ARN." >&2
   exit 1
 fi
+say "Runtime: ${ARN}"
 
 deploy() {
   aws cloudformation deploy --region "$REGION" --stack-name "$STACK" \
@@ -33,25 +57,45 @@ deploy() {
     --parameter-overrides AgentRuntimeArn="$ARN" GitRef="$GIT_REF" CreateService="$1"
 }
 
-echo "1/3  ECR repository and CodeBuild project (stack ${STACK})"
-deploy false
+say "1/4  ECR repository and CodeBuild project (stack ${STACK})"
+with_heartbeat "CloudFormation" deploy false
 
-echo "2/3  Building the image in CodeBuild from ${GIT_REF}"
+say "2/4  Building the image in CodeBuild from ${GIT_REF} (usually 4-6 min)"
 BUILD_ID=$(aws codebuild start-build --region "$REGION" --project-name "${PROJECT}-web-build" \
   --query build.id --output text)
 while :; do
-  STATUS=$(aws codebuild batch-get-builds --region "$REGION" --ids "$BUILD_ID" \
-    --query 'builds[0].buildStatus' --output text)
+  read -r STATUS PHASE < <(aws codebuild batch-get-builds --region "$REGION" --ids "$BUILD_ID" \
+    --query 'builds[0].[buildStatus,currentPhase]' --output text)
   case "$STATUS" in
-    IN_PROGRESS) sleep 15 ;;
-    SUCCEEDED) break ;;
+    IN_PROGRESS) say "  ... CodeBuild phase: ${PHASE}"; sleep 15 ;;
+    SUCCEEDED) say "  image pushed"; break ;;
     *) echo "CodeBuild ${BUILD_ID}: ${STATUS} (see CloudWatch log group /aws/codebuild/${PROJECT}-web-build)" >&2; exit 1 ;;
   esac
 done
 
-echo "3/3  App Runner service"
-deploy true
+say "3/4  App Runner service (first create takes 3-5 min; later runs are a no-op)"
+with_heartbeat "CloudFormation" deploy true
 
 URL=$(aws cloudformation describe-stacks --region "$REGION" --stack-name "$STACK" \
   --query "Stacks[0].Outputs[?OutputKey=='ServiceUrl'].OutputValue" --output text)
-echo "Web UI: ${URL}"
+SERVICE_ARN=$(aws apprunner list-services --region "$REGION" \
+  --query "ServiceSummaryList[?ServiceName=='${STACK}'].ServiceArn | [0]" --output text)
+
+say "4/4  Waiting for App Runner to roll the new image out"
+while :; do
+  SVC_STATUS=$(aws apprunner describe-service --region "$REGION" --service-arn "$SERVICE_ARN" \
+    --query 'Service.Status' --output text)
+  read -r OP_TYPE OP_STATUS < <(aws apprunner list-operations --region "$REGION" --service-arn "$SERVICE_ARN" \
+    --max-results 1 --query 'OperationSummaryList[0].[Type,Status]' --output text)
+  if [ "$SVC_STATUS" = "RUNNING" ] && [ "$OP_STATUS" != "IN_PROGRESS" ] && [ "$OP_STATUS" != "PENDING" ]; then
+    break
+  fi
+  say "  ... service ${SVC_STATUS}, last operation ${OP_TYPE} ${OP_STATUS}"
+  sleep 15
+done
+if [ "$OP_STATUS" != "SUCCEEDED" ]; then
+  echo "App Runner operation ${OP_TYPE} ended ${OP_STATUS}; check the service in the console." >&2
+  exit 1
+fi
+
+say "Done in $(elapsed). Web UI: ${URL}"

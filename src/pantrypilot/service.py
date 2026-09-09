@@ -363,6 +363,7 @@ def state_snapshot() -> dict[str, Any]:
             "outbound": store.list_messages(direction="outbound", limit=60),
         },
         "audit": store.list_audit(limit=80),
+        "progress": store.list_progress(limit=40),
         "last_report": store.last_report(),
         "donations": store.list_donations(),
         "people": people,

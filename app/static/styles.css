@@ -183,3 +183,20 @@ table.po th, table.po td { text-align: left; padding: 5px 8px; border-bottom: 1p
   .act { grid-template-columns: 70px 80px 1fr; }
   .act .detail { display: none; }
 }
+
+/* Live strip: which agent is working and what it is doing, refreshed every 2 s while a cycle runs. */
+.status-strip.live { flex-direction: column; align-items: stretch; gap: 6px; }
+.status-strip.live .live-head { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.status-strip.live .live-elapsed { margin-left: auto; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--muted); }
+.live-lines { list-style: none; margin: 0; padding: 0 0 0 19px; display: grid; gap: 3px; font-size: 13px; color: var(--ink); }
+.live-lines li { line-height: 1.4; opacity: 0.6; }
+.live-lines li:last-child { opacity: 1; }
+.live-lines li .who { font-weight: 600; color: #6b4a08; margin-right: 6px; }
+.live-lines li.calling span:last-child { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.live-lines li.calling span:last-child::before { content: "\2192  "; color: var(--amber-600); }
+.live-lines li.said span:last-child::before { content: "\201C"; color: var(--muted); }
+.live-lines li.said span:last-child::after { content: "\201D"; color: var(--muted); }
+.live-lines li.thinking span:last-child { color: var(--muted); font-style: italic; }
+.live-lines li.handoff span:last-child { color: var(--green-700); font-weight: 600; }
+.live-lines li.done span:last-child { color: var(--green-700); font-size: 12px; }
+.live-lines li.done span:last-child::before { content: "\2713  "; }
